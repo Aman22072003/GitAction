@@ -1,0 +1,5 @@
+test-output/
+*.log
+*.class
+target/
+
