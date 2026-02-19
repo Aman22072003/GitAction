@@ -11,25 +11,41 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1️⃣ Checkout your code
       - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # 2️⃣ Set up JDK 17
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
+          cache: maven
 
-      - name: Install Chrome
-        uses: browser-actions/setup-chrome@v1
+      # 3️⃣ Install Chrome & dependencies
+      - name: Install Chrome & Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wget unzip xvfb libxi6 libgconf-2-4
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo apt install -y ./google-chrome-stable_current_amd64.deb
 
-      - name: Build Project
-        run: mvn clean install
+      # 4️⃣ Install ChromeDriver (matching Chrome version)
+      - name: Install ChromeDriver
+        run: |
+          CHROME_VERSION=$(google-chrome --version | grep -oP '\d+\.\d+\.\d+')
+          wget https://chromedriver.storage.googleapis.com/${CHROME_VERSION}/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/bin/
+          sudo chmod +x /usr/bin/
 
-      - name: Run Tests
-        run: mvn test
+      # 5️⃣ Build and run Maven tests
+      - name: Build and Run Tests
+        run: mvn clean test -B
 
-      - name: Upload Test Report
+      # 6️⃣ Upload Surefire test reports
+      - name: Upload Test Reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
