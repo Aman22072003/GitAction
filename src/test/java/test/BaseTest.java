@@ -19,8 +19,6 @@ public class BaseTest {
 	
 	@BeforeSuite
 	public void setup() throws IOException {
-		
-		WebDriverManager.chromedriver().setup();
 		ChromeOptions options = new ChromeOptions();
 	    options.addArguments("--headless"); // run headless
 	    options.addArguments("--no-sandbox"); 
